@@ -20,15 +20,21 @@ router.get("/", (req, res) => {
 });
 
 router.post("/" , (req, res) => {
-    const novoLivro = req.body
+    const {titulo , autor} = req.body;
+
+    const novoLivro = {
+        id: livros.length + 1,
+        titulo,
+        autor
+    };
 
     livros.push(novoLivro);
 
     res.status(201).json({
         mensagem:"Livro cadastrado com sucesso!",
         livro: novoLivro
-    })
-})
+    });
+});
 
 
 module.exports = router;
