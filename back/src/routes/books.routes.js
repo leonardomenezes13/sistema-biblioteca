@@ -1,40 +1,18 @@
 const express = require("express");
+const {
+    listarLivros,
+    buscarLivroPorId,
+    cadastrarLivro,
+    atualizarLivro,
+    removerLivro
+} = require("../controllers/books.controller");
 
 const router = express.Router();
 
-const livros =[
-    {
-        id: 1,
-        título: "Dom Casmurro",
-        autor: "Machado de Assis"
-    },
-    {
-        id: 2,
-        título: "1984",
-        autor: "George Orwell"
-    }
-];
-
-router.get("/", (req, res) => {
-    res.json(livros);
-});
-
-router.post("/" , (req, res) => {
-    const {titulo , autor} = req.body;
-
-    const novoLivro = {
-        id: livros.length + 1,
-        titulo,
-        autor
-    };
-
-    livros.push(novoLivro);
-
-    res.status(201).json({
-        mensagem:"Livro cadastrado com sucesso!",
-        livro: novoLivro
-    });
-});
-
+router.get("/", listarLivros);
+router.get("/:id", buscarLivroPorId);
+router.post("/", cadastrarLivro);
+router.put("/:id", atualizarLivro);
+router.delete("/:id", removerLivro);
 
 module.exports = router;
