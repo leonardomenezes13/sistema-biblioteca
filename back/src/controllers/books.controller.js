@@ -1,15 +1,9 @@
-const livros = [
-    {
-        id: 1,
-        titulo: "Dom Casmurro",
-        autor: "Machado de Assis"
-    },
-    {
-        id: 2,
-        titulo: "1984",
-        autor: "George Orwell"
-    }
-];
+const service = require("../services/books.service");
+
+function validarId(id) {
+    const num = Number(id);
+    return Number.isInteger(num) && num > 0 ? null : "ID invalido";
+}
 
 function validarLivro(titulo, autor) {
     if (titulo === undefined || autor === undefined) {
@@ -27,100 +21,68 @@ function validarLivro(titulo, autor) {
     return null;
 }
 
-function listarLivros(req, res) {
-    res.json(livros);
+async function listarLivros(req, res, next) {
+    try {
+        const livros = await service.listarLivros();
+        res.json(livros);
+    } catch (err) {
+        next(err);
+    }
 }
 
-function buscarLivroPorId(req, res) {
-    const { id } = req.params;
+async function buscarLivroPorId(req, res, next) {
+    try {
+        const erroId = validarId(req.params.id);
+        if (erroId) return res.status(400).json({ mensagem: erroId });
 
-    const livro = livros.find((livro) => livro.id === Number(id));
-
-    if (!livro) {
-        return res.status(404).json({
-            mensagem: "Livro nao encontrado"
-        });
+        const livro = await service.buscarLivroPorId(req.params.id);
+        res.json(livro);
+    } catch (err) {
+        next(err);
     }
-
-    res.json(livro);
 }
 
-function cadastrarLivro(req, res) {
-    const { titulo, autor } = req.body;
+async function cadastrarLivro(req, res, next) {
+    try {
+        const { titulo, autor } = req.body || {};
 
-    const erro = validarLivro(titulo, autor);
+        const erro = validarLivro(titulo, autor);
+        if (erro) return res.status(400).json({ mensagem: erro });
 
-    if (erro) {
-        return res.status(400).json({
-            mensagem: erro
-        });
+        const livro = await service.cadastrarLivro(titulo, autor);
+        res.status(201).json({ mensagem: "Livro cadastrado com sucesso", livro });
+    } catch (err) {
+        next(err);
     }
-
-    const novoId = livros.length > 0
-        ? Math.max(...livros.map((livro) => livro.id)) + 1
-        : 1;
-
-    const novoLivro = {
-        id: novoId,
-        titulo: titulo.trim(),
-        autor: autor.trim()
-    };
-
-    livros.push(novoLivro);
-
-    res.status(201).json({
-        mensagem: "Livro cadastrado com sucesso",
-        livro: novoLivro
-    });
 }
 
-function atualizarLivro(req, res) {
-    const { id } = req.params;
-    const { titulo, autor } = req.body;
+async function atualizarLivro(req, res, next) {
+    try {
+        const erroId = validarId(req.params.id);
+        if (erroId) return res.status(400).json({ mensagem: erroId });
 
-    const erro = validarLivro(titulo, autor);
+        const { titulo, autor } = req.body || {};
 
-    if (erro) {
-        return res.status(400).json({
-            mensagem: erro
-        });
+        const erro = validarLivro(titulo, autor);
+        if (erro) return res.status(400).json({ mensagem: erro });
+
+        const livro = await service.atualizarLivro(req.params.id, titulo, autor);
+        res.json({ mensagem: "Livro atualizado com sucesso", livro });
+    } catch (err) {
+        next(err);
     }
-
-    const livro = livros.find((livro) => livro.id === Number(id));
-
-    if (!livro) {
-        return res.status(404).json({
-            mensagem: "Livro nao encontrado"
-        });
-    }
-
-    livro.titulo = titulo.trim();
-    livro.autor = autor.trim();
-
-    res.json({
-        mensagem: "Livro atualizado com sucesso",
-        livro
-    });
 }
 
-function removerLivro(req, res) {
-    const { id } = req.params;
+async function removerLivro(req, res, next) {
+    try {
+        const erroId = validarId(req.params.id);
+        if (erroId) return res.status(400).json({ mensagem: erroId });
 
-    const livroIndex = livros.findIndex(
-        (livro) => livro.id === Number(id)
-    );
-
-    if (livroIndex === -1) {
-        return res.status(404).json({
-            mensagem: "Livro nao encontrado"
-        });
+        await service.removerLivro(req.params.id);
+        res.json({ mensagem: "Livro removido com sucesso" });
+    } catch (err) {
+        next(err);
     }
-
-    livros.splice(livroIndex, 1);
-
-    res.json({
-        mensagem: "Livro removido com sucesso"
-    });
 }
 
 module.exports = {
