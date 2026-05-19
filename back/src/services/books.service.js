@@ -1,7 +1,7 @@
 const pool = require("../database/connection");
 
 async function listarLivros() {
-    const [rows] = await pool.query("SELECT * FROM livros");
+    const [rows] = await pool.query("SELECT id, titulo, autor FROM livros");
     return rows;
 }
 

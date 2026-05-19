@@ -3,24 +3,23 @@
   "version": "1.0.0",
   "description": "",
   "main": "back/src/server.js",
-
   "scripts": {
-    "dev": "nodemon back/src/server.js"
+    "dev": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
+    "dev:back": "nodemon back/src/server.js",
+    "dev:front": "npm run dev --prefix front"
   },
-
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "mysql2": "^3.22.3"
   },
-
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "nodemon": "^3.1.14"
   }
 }
