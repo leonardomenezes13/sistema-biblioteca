@@ -18,71 +18,59 @@ function validarLivro(titulo, autor) {
         return "Titulo e autor nao podem estar vazios";
     }
 
+    if (titulo.trim().length > 255) {
+        return "Titulo deve ter no maximo 255 caracteres";
+    }
+
+    if (autor.trim().length > 255) {
+        return "Autor deve ter no maximo 255 caracteres";
+    }
+
     return null;
 }
 
-async function listarLivros(req, res, next) {
-    try {
-        const livros = await service.listarLivros();
-        res.json(livros);
-    } catch (err) {
-        next(err);
-    }
+async function listarLivros(req, res) {
+    const livros = await service.listarLivros();
+    res.json(livros);
 }
 
-async function buscarLivroPorId(req, res, next) {
-    try {
-        const erroId = validarId(req.params.id);
-        if (erroId) return res.status(400).json({ mensagem: erroId });
+async function buscarLivroPorId(req, res) {
+    const erroId = validarId(req.params.id);
+    if (erroId) return res.status(400).json({ mensagem: erroId });
 
-        const livro = await service.buscarLivroPorId(req.params.id);
-        res.json(livro);
-    } catch (err) {
-        next(err);
-    }
+    const livro = await service.buscarLivroPorId(req.params.id);
+    res.json(livro);
 }
 
-async function cadastrarLivro(req, res, next) {
-    try {
-        const { titulo, autor } = req.body || {};
+async function cadastrarLivro(req, res) {
+    const { titulo, autor } = req.body || {};
 
-        const erro = validarLivro(titulo, autor);
-        if (erro) return res.status(400).json({ mensagem: erro });
+    const erro = validarLivro(titulo, autor);
+    if (erro) return res.status(400).json({ mensagem: erro });
 
-        const livro = await service.cadastrarLivro(titulo, autor);
-        res.status(201).json({ mensagem: "Livro cadastrado com sucesso", livro });
-    } catch (err) {
-        next(err);
-    }
+    const livro = await service.cadastrarLivro(titulo, autor);
+    res.status(201).json({ mensagem: "Livro cadastrado com sucesso", livro });
 }
 
-async function atualizarLivro(req, res, next) {
-    try {
-        const erroId = validarId(req.params.id);
-        if (erroId) return res.status(400).json({ mensagem: erroId });
+async function atualizarLivro(req, res) {
+    const erroId = validarId(req.params.id);
+    if (erroId) return res.status(400).json({ mensagem: erroId });
 
-        const { titulo, autor } = req.body || {};
+    const { titulo, autor } = req.body || {};
 
-        const erro = validarLivro(titulo, autor);
-        if (erro) return res.status(400).json({ mensagem: erro });
+    const erro = validarLivro(titulo, autor);
+    if (erro) return res.status(400).json({ mensagem: erro });
 
-        const livro = await service.atualizarLivro(req.params.id, titulo, autor);
-        res.json({ mensagem: "Livro atualizado com sucesso", livro });
-    } catch (err) {
-        next(err);
-    }
+    const livro = await service.atualizarLivro(req.params.id, titulo, autor);
+    res.json({ mensagem: "Livro atualizado com sucesso", livro });
 }
 
-async function removerLivro(req, res, next) {
-    try {
-        const erroId = validarId(req.params.id);
-        if (erroId) return res.status(400).json({ mensagem: erroId });
+async function removerLivro(req, res) {
+    const erroId = validarId(req.params.id);
+    if (erroId) return res.status(400).json({ mensagem: erroId });
 
-        await service.removerLivro(req.params.id);
-        res.json({ mensagem: "Livro removido com sucesso" });
-    } catch (err) {
-        next(err);
-    }
+    await service.removerLivro(req.params.id);
+    res.status(204).send();
 }
 
 module.exports = {
